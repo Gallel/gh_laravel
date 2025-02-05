@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('alumnes', function (Blueprint $table) {
             $table->id();
             $table->string('nom');
+            $table->string('cognom');
+            $table->date('dataNaixement');
+            $table->string('NIF');
             $table->foreignId('classe_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
