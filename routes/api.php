@@ -5,17 +5,15 @@ use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\AlumneController;
 
 Route::middleware('api')->group(function () {
-    Route::apiResource('classes', ClasseController::class);
-    Route::apiResource('alumnes', AlumneController::class);
-
-    // Endpoint per afegir un alumne a una classe
+    // Endpoint to retrieve all classes: GET /classes
+    Route::get('classes', [ClasseController::class, 'index']);
+    
+    // Endpoint to create a new class: POST /classes
+    Route::post('classes', [ClasseController::class, 'store']);
+    
+    // Endpoint to add a student to a class: POST /classes/{classe}/alumnes
     Route::post('classes/{classe}/alumnes', [ClasseController::class, 'addAlumne']);
 
-    // Endpoint per consultar tots els alumnes d'una classe
+    // Endpoint to retrieve all students of a class: GET /classes/{classe}/alumnes
     Route::get('classes/{classe}/alumnes', [ClasseController::class, 'getAlumnes']);
-
-    // Defineix les rutes de la teva API aquí
-    Route::get('/example', function () {
-        return response()->json(['message' => 'Hello, API!']);
-    });
 });
