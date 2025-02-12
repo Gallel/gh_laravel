@@ -18,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->append(\App\Http\Middleware\ForceJsonResponse::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (ModelNotFoundException $e, Request $request) {
@@ -29,14 +29,14 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (ValidationException $e, Request $request) {
             return response()->json([
-                'error' => 'Validation failed',
+                'error'    => 'Validation failed',
                 'messages' => $e->errors()
             ], 422);
         });
 
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             return response()->json([
-                'error' => 'Unauthenticated'
+                'error' => 'Unauthenticated: Bearer token is missing or invalid.'
             ], 401);
         });
 
@@ -52,7 +52,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ], $e->getStatusCode());
         });
 
-        $exceptions->render(function (Exception $e, Request $request) {
+        $exceptions->render(function (\Throwable $e, Request $request) {
             return response()->json([
                 'error' => 'Server error'
             ], 500);
