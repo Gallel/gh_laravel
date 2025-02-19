@@ -46,15 +46,21 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 403);
         });
 
-        $exceptions->render(function (HttpException $e, Request $request) {
-            return response()->json([
-                'error' => $e->getMessage()
-            ], $e->getStatusCode());
-        });
-
         $exceptions->render(function (\Throwable $e, Request $request) {
             return response()->json([
-                'error' => 'Server error'
+                'error'   => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+                'trace'   => $e->getTraceAsString(),
             ], 500);
+        });
+        
+        $exceptions->render(function (HttpException $e, Request $request) {
+            return response()->json([
+                'error'   => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+                'trace'   => $e->getTraceAsString(),
+            ], $e->getStatusCode());
         });
     })->create();
