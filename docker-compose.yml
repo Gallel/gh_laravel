@@ -8,7 +8,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - /var/www/cgallel/home
+      - .:/var/www/cgallel/home
     networks:
       - laravel_network
     depends_on:
