@@ -1,4 +1,4 @@
-name: Build, Push and Deploy to Railway
+name: Build, Push and Deploy to Server via SSH
 
 on:
   push:
@@ -29,10 +29,22 @@ jobs:
           push: true
           tags: cgalleluoc/gh_laravel:latest
 
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
+      - name: Install SSH client
+        run: apt-get update && apt-get install -y openssh-client
 
-      - name: Deploy to Railway
-        run: railway up --detach
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      - name: Copy SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Add SSH key to the agent
+        run: ssh-add ~/.ssh/id_rsa
+
+      - name: Deploy to server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            docker pull cgalleluoc/gh_laravel:latest
+            docker-compose down
+            docker-compose up -d
+          EOF
