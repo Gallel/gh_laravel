@@ -15,10 +15,13 @@ RUN apt-get update && apt-get install -y \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Configuració del directori de treball
-WORKDIR /var/www
+WORKDIR /var/www/cgallel/home
 
 # Copiem els arxius de l'aplicació dins del contenidor
 COPY . .
+
+# Llistar el contingut del directori per verificar la còpia
+RUN ls -la /var/www/cgallel/home
 
 # Instal·lem les dependències de Laravel amb Composer
 RUN composer install --no-dev --optimize-autoloader
