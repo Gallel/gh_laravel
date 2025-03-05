@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Laravel App
+  app:
+    image: cgalleluoc/gh_laravel:latest
+    container_name: laravel_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+    networks:
+      - laravel_network
+    depends_on:
+      db:
+        condition: service_healthy
+    command: [ "sh", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000" ]
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=laravel
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+
+  # Base de dades MySQL
+  db:
+    image: mysql:5.7
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: laravel
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - laravel_network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      retries: 5
+      timeout: 3s
+
+  # phpMyAdmin per gestionar la base de dades
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: db
+    ports:
+      - "8080:80"
+    networks:
+      - laravel_network
+    depends_on:
+      - db
+
+networks:
+  laravel_network:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
